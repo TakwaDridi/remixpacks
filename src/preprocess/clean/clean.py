@@ -7,6 +7,7 @@ pd.set_option("display.max_rows", 1000)
 
 
 def clean_data(df):
+    # TODO add extra attributes
     print(f'Started cleaning raw data')
 
     renamed_columns = {'year of song': 'year_of_song',
