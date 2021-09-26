@@ -22,8 +22,8 @@ def clean_data(df):
     chars_to_remove = [',', '?', '!']
 
     for char in chars_to_remove:
-        df.loc[:, 'key'] = df.loc[:, 'key'].str.replace(char, '')
-        df.loc[:, 'artist'] = df.loc[:, 'artist'].str.replace(char, '')
+        df.loc[:, 'key'] = df.loc[:, 'key'].str.replace(char, '', regex=True)
+        df.loc[:, 'artist'] = df.loc[:, 'artist'].str.replace(char, '', regex=True)
 
     df.loc[:, 'year_of_song'] = pd.to_numeric(df.loc[:, 'year_of_song'], errors='coerce')
     df.loc[:, 'year_of_song'] = df.loc[:, 'year_of_song'].fillna(int(df.year_of_song.mean()))
@@ -32,8 +32,8 @@ def clean_data(df):
     df.loc[:, 'genre'] = df.loc[:, 'genre'].fillna('undefined')
     df.loc[:, 'artist'] = df.loc[:, 'artist'].fillna('undefined')
 
-    df.loc[:, 'beats_per_minute'] = df.loc[:, 'beats_per_minute'].str.replace(' ', '')
-    df.loc[:, 'beats_per_minute'] = df.loc[:, 'beats_per_minute'].str.replace(',', '.')
+    df.loc[:, 'beats_per_minute'] = df.loc[:, 'beats_per_minute'].str.replace(' ', '', regex=True)
+    df.loc[:, 'beats_per_minute'] = df.loc[:, 'beats_per_minute'].str.replace(',', '.', regex=True)
     df.loc[:, 'beats_per_minute'] = pd.to_numeric(df.loc[:, 'beats_per_minute'], downcast="float", errors='coerce')
     df.loc[:, 'beats_per_minute'] = df.loc[:, 'beats_per_minute'].fillna(df.beats_per_minute.mean())
 
