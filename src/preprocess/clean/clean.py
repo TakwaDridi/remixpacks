@@ -1,5 +1,7 @@
 import pandas as pd
 
+from dataloaders import partition_handler as ph
+
 pd.set_option("display.max_columns", 100)
 pd.set_option("display.max_rows", 1000)
 
@@ -70,6 +72,23 @@ def clean_data(df):
     cols_to_drop = ['attributes', 'undefined'] + attribute_cols
     df.drop(columns=cols_to_drop, inplace=True)
 
+    cols_dict = {col: str(col) for col in df.columns}
+    df.rename(columns=cols_dict, inplace=True)
+
     print(f'Ended cleaning raw data')
 
     return df
+
+
+if __name__ == '__main__':
+    ph.delete_object_partition(state_name='clean',
+                               object_name='songs')
+
+    df = ph.load_object_partition(state_name='raw',
+                                  object_name='songs')
+    df = clean_data(df)
+
+    path = ph.get_object_partition_dir(state_name='clean',
+                                       object_name='songs')
+
+    df.to_parquet(path=path, partition_cols=['page'])

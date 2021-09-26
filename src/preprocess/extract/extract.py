@@ -1,6 +1,10 @@
+import multiprocessing as mp
+
 import pandas as pd
 import parsel
 import requests
+
+from dataloaders import partition_handler as ph
 
 
 def get_element(text,
@@ -131,17 +135,35 @@ def extract_song_information(song_container):
     return info_dict
 
 
-def extract_raw_data(total_pages):
+def extract_page(page_number):
     songs = []
-    print('Started raw data extraction')
-    for page_number in range(1, total_pages + 1):
+    song_containers = extract_song_containers(page=page_number)
+    print(f'Started extracting {len(song_containers)} songs from page {page_number}')
 
-        song_containers = extract_song_containers(page=page_number)
-        print(f'Extracting {len(song_containers)} songs from page {page_number}')
-
-        for song_container in song_containers:
-            song_info = extract_song_information(song_container)
-            songs.append(song_info)
+    for song_container in song_containers:
+        song_info = extract_song_information(song_container)
+        songs.append(song_info)
 
     df = pd.DataFrame.from_dict(data=songs, orient='columns')
-    return df
+    df = df.assign(page=page_number)
+
+    for col in df.columns:
+        df.loc[:, col] = df.loc[:, col].astype('string')
+
+    path = ph.get_object_partition_dir(state_name='raw', object_name='songs')
+
+    df.to_parquet(path=path, partition_cols=['page'])
+
+    print(f'Ended extracting {len(song_containers)} songs from page {page_number}')
+
+
+if __name__ == '__main__':
+    ph.delete_object_partition(state_name='raw', object_name='songs')
+
+    total_pages = 1347
+    pages = [(page_number,) for page_number in range(1, total_pages + 1)]
+
+    pool = mp.Pool(24)
+    pool.starmap(extract_page, pages)
+    pool.close()
+    pool.join()
