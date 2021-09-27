@@ -1,9 +1,7 @@
 import multiprocessing as mp
-
 import pandas as pd
 import parsel
 import requests
-
 from dataloaders import partition_handler as ph
 
 
@@ -45,6 +43,11 @@ def extract_song_title(song_container):
 
 
 def extract_genre_information(song_container):
+    '''
+
+    :param song_container:
+    :return:
+    '''
     genre_info = get_element(text=song_container,
                              object_name="div",
                              class_name="genres1 genrescomp")

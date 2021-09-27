@@ -51,5 +51,5 @@ def load_object_partition(state_name,
 
 
 if __name__ == '__main__':
-    df = load_object_partition('raw', 'aa', page=1, columns=['a'])
+    df = load_object_partition('raw', 'songs', page=1)
     print(df)
