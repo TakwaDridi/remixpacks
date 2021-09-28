@@ -41,6 +41,10 @@ def load_object_partition(state_name,
                           object_name,
                           columns=None,
                           **kwargs):
+
+    print(f'Loading dataframe from {state_name}, object : {object_name},'
+          f' partition : {kwargs}')
+    
     path = get_object_partition_path(state_name, object_name, **kwargs)
     try:
         df = pd.read_parquet(path, columns=columns)
