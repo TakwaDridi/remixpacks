@@ -11,22 +11,54 @@ from dataloaders import partition_handler as ph
 # nltk.download('stopwords')
 # nltk.download('wordnet')
 
-def get_insight_on(genre, df):
-    df_genres = df.groupby(['genre'])[keys].sum().reset_index()
-    all_keys = [df_genres[col].mean() > 0 for col in keys]
-    all_keys.insert(0, True)  # added a true element at the head of the list
+def get_song_distribution_figure(df):
+    keys = df.columns[145:]
+    df = df.assign(number_of_songs=1)
+    agg_dict = dict.fromkeys(keys, 'mean')
+    agg_dict.update(dict(number_of_songs='sum'))
 
-    df_genre = df_genres.loc[df_genres.genre == genre, all_keys]
-    return df_genre
+    stats = df.groupby('genre').agg(agg_dict)
+    stats.reset_index(inplace=True)
+    stats.sort_values(by='number_of_songs', ascending=False, inplace=True)
+
+    fig = px.histogram(stats, x='genre', y='number_of_songs', histnorm='percent', title='songs distribution per genre')
+    fig.update_xaxes(title='Genre', tickangle=45)
+    fig.update_yaxes(title='% Number of songs', type='linear', tickangle=0)
+    fig.show()
+
+def get_keys_figure(df, genre):
+    keys = df.columns[145:]
+    df = df.assign(number_of_songs=1)
+    agg_dict = dict.fromkeys(keys, 'mean')
+    agg_dict.update(dict(number_of_songs='sum'))
+
+    stats = df.groupby('genre').agg(agg_dict)
+    stats.reset_index(inplace=True)
+    stats.sort_values(by='number_of_songs', ascending=False, inplace=True)
+    genre_stats = stats.loc[stats['genre'] == genre, :]
+
+    genre_stats = genre_stats.iloc[0].to_frame()
+    genre_stats = genre_stats.iloc[1:-1, :]
+    genre_stats.reset_index(level=0, inplace=True)
+    genre_stats = genre_stats.rename(columns={genre_stats.columns[0]: 'key', genre_stats.columns[1]: 'percentage'})
+    fig = px.histogram(genre_stats, x='key', y='percentage', title=f'{genre} songs most used keys')
+    fig.update_xaxes(title='keys', tickangle=45)
+    fig.update_yaxes(title='%', type='linear', tickangle=0)
+    fig.show()
 
 
-def plot_genre_insight(genre, df):
-    df_genre = get_insight_on(genre, df)
-    df_genre.plot(kind='bar', xticks=[])
-    plt.title(f'''{genre} songs' most used keys''')
-    plt.xlabel('keys')
-    plt.ylabel('number of songs')
-    plt.show()
+def get_bpm_distribution_figure(df):
+    fig = px.box(df, x="genre", y="beats_per_minute", title='beats per minute per genre')
+    fig.update_xaxes(title='Genre', tickangle=45)
+    fig.update_yaxes(title='Beats per minute', type='linear', tickangle=0)
+    fig.show()
+
+
+def get_release_year_distribution_figure(df):
+    fig = px.box(df, x="genre", y="year_of_song", title='year of song per genre')
+    fig.update_xaxes(title='Genre', tickangle=45)
+    fig.update_yaxes(title='Release Year', type='linear', tickangle=0)
+    fig.show()
 
 
 def clean_title(df):
@@ -66,50 +98,15 @@ def title_unique_words(df):
     return df
 
 
-def get_bpm_distribution_figure(df):
-
-    fig = px.box(df, x="genre", y="beats_per_minute")
-    fig.update_xaxes(title='Genre', tickangle=45)
-    fig.update_yaxes(title='Beats per minute', type='linear', tickangle=0)
-
-    return fig
-
-
-def get_release_year_distribution_figure(df):
-
-    fig = px.box(df, x="genre", y="year_of_song")
-    fig.update_xaxes(title='Genre', tickangle=45)
-    fig.update_yaxes(title='Release Year', type='linear', tickangle=0)
-
-    return fig
-
-
-def get_keys_figure(df):
-
-    keys = df.columns[145:]
-    df = df.assign(number_of_songs=1)
-    agg_dict = dict.fromkeys(keys, 'mean')
-    agg_dict.update(dict(number_of_songs='sum'))
-
-    stats = df.groupby('genre').agg(agg_dict)
-    stats.reset_index(inplace=True)
-    stats.sort_values(by='number_of_songs', ascending=False, inplace=True)
-
-    return stats
-
-
 if __name__ == '__main__':
     df = ph.load_object_partition(state_name='clean',
                                   object_name='songs')
 
     df.drop(['page'], axis=1, inplace=True)
     keys = df.columns[145:]
-    print(df.shape)
-    # fig = get_bpm_distribution_figure(df)
-    # fig.show(renderer='browser')
-    # fig = get_release_year_distribution_figure(df)
-    # fig.show(renderer='browser')
-    stats = get_keys_figure(df)
-    print(stats)
 
-
+    get_song_distribution_figure(df)
+    get_keys_figure(df, 'pop')
+    get_keys_figure(df, 'rock')
+    get_release_year_distribution_figure(df)
+    get_bpm_distribution_figure(df)
