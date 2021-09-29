@@ -1,6 +1,5 @@
 import string
 
-import matplotlib.pyplot as plt
 import plotly.express as px
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -25,6 +24,7 @@ def get_song_distribution_figure(df):
     fig.update_xaxes(title='Genre', tickangle=45)
     fig.update_yaxes(title='% Number of songs', type='linear', tickangle=0)
     fig.show()
+
 
 def get_keys_figure(df, genre):
     keys = df.columns[145:]
