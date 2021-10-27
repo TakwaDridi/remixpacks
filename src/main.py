@@ -5,7 +5,7 @@ from preprocess.clean import clean as cl
 from preprocess.extract import extract as ex
 
 if __name__ == '__main__':
-    # crawling and extracting data
+    # ================= crawling and extracting data =================
     ph.delete_object_partition(state_name='raw', object_name='songs')
     print('Started crawling website')
     total_pages = 1347
@@ -16,7 +16,7 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
 
-    # cleaning data
+    # ======================= cleaning data ==========================
     ph.delete_object_partition(state_name='clean',
                                object_name='songs')
 
@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     df.to_parquet(path=path, partition_cols=['page'])
 
-    # loading data
+    # ======================= loading data ==========================
     print('Loading clean data')
     df = ph.load_object_partition(state_name='clean',
                                   object_name='songs')
