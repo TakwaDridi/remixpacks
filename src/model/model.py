@@ -32,6 +32,8 @@ def create_model(input_size, categories, X_train, y_train):
                     input_dim=input_size))
     model.add(Dense(units=100,
                     activation='relu'))
+    model.add(Dense(units=100,
+                    activation='relu'))
     model.add(Dense(units=categories,
                     activation='softmax'))
     # compile the model
@@ -39,7 +41,9 @@ def create_model(input_size, categories, X_train, y_train):
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
     # build the model
-    model.fit(X_train, y_train, epochs=150)
+    model.fit(X_train, y_train, epochs=64,
+              batch_size= 12, shuffle=True,
+              use_multiprocessing=True)
 
     return model
 
@@ -47,11 +51,11 @@ def create_model(input_size, categories, X_train, y_train):
 def evaluate_model(final_model, x_train, y_train, x_test, y_test):
     pred_train = final_model.predict(x_train)
     scores = final_model.evaluate(x_train, y_train, verbose=0)
-    print('Accuracy on training data: {}% \n Error on training data: {}'.format(scores[1], 1 - scores[1]))
+    print('Accuracy on training data: {} \n Error on training data: {}'.format(scores[1], 1 - scores[1]))
 
     pred_test = final_model.predict(x_test)
     scores2 = final_model.evaluate(x_test, y_test, verbose=0)
-    print('Accuracy on test data: {}% \n Error on test data: {}'.format(scores2[1], 1 - scores2[1]))
+    print('Accuracy on test data: {} \n Error on test data: {}'.format(scores2[1], 1 - scores2[1]))
 
 
 if __name__ == "__main__":
